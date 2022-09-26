@@ -1,1 +1,1 @@
-# rc-slides
+# rq-slides
