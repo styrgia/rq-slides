@@ -32,12 +32,6 @@ const nextConfig = {
         dangerouslyAllowSVG: true,
         contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
     },
-    rewrites: async () => [
-        {
-            source: '/api/:path*',
-            destination: process.env.BACK_INTERNAL_URL,
-        },
-    ],
     headers: async () => [
         {
             source: '/:all*(svg|jpg|png|jpeg|woff|woff2|webp|ico)',
