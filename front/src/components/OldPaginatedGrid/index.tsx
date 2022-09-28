@@ -1,9 +1,9 @@
-import React, {useEffect, useState} from "react";
-import useDebounce from "@/hooks/useDebounce";
-import ProductsGrid from "@/components/ProductsGrid";
-import {Input, Pagination, Space} from "@mantine/core";
-import {useQuery} from "@tanstack/react-query";
-import {getProducts} from "@/pages";
+import React, { useEffect, useMemo, useState } from 'react';
+import useDebounce from '@/hooks/useDebounce';
+import ProductsGrid from '@/components/ProductsGrid';
+import { Input, Pagination, Space } from '@mantine/core';
+import { useQuery } from '@tanstack/react-query';
+import { getProducts } from '@/pages';
 
 function PaginatedGrid() {
     const [searchValue, setSearchValue] = useState<string>('');
@@ -16,9 +16,10 @@ function PaginatedGrid() {
         { keepPreviousData: true, staleTime: 3000 }
     );
 
-    useEffect(() => {
-        setPage(1);
-    }, [searchValue]);
+    const totalPages = useMemo(() => {
+        if (!data) return 0;
+        return (data.total - data.limit) / data.limit;
+    }, [data?.total, data?.limit]);
 
     const renderResult = () => {
         if (isLoading) {
@@ -34,22 +35,27 @@ function PaginatedGrid() {
                 <>
                     <ProductsGrid data={data.products} />
                     <Space h="xl" />
-                    <Pagination
-                        total={Math.floor((data.total - data.limit) / data.limit) || 0}
-                        page={page}
-                        onChange={setPage}
-                    />
+                    {totalPages > 0 && (
+                        <Pagination total={totalPages} page={page} onChange={setPage} />
+                    )}
                 </>
             );
         }
 
         return <></>;
     };
+
+    useEffect(() => {
+        setPage(1);
+    }, [searchValue]);
+
     return (
         <>
             <h2>Products</h2>
             <Input
-                onChange={(event: React.ChangeEvent<HTMLInputElement>) => setSearchValue(event.target.value)}
+                onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                    setSearchValue(event.target.value)
+                }
                 value={searchValue}
             />
             <Space h="xl" />

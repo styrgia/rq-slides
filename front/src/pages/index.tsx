@@ -1,8 +1,8 @@
-import React  from 'react';
+import React from 'react';
 import { dehydrate, QueryClient } from '@tanstack/react-query';
 import { GetStaticProps } from 'next';
 import axios from 'axios';
-import PaginatedGrid from "@/components/NewPaginatedGrid";
+import PaginatedGrid from '@/components/NewPaginatedGrid';
 
 export type Product = {
     id: number;
@@ -21,7 +21,7 @@ export type ProductsResponse = {
 
 export const getProducts = async (page = 1, search?: string): Promise<ProductsResponse> => {
     const searchQuery = search?.length ? `/search?q=${search}&` : '?';
-    const limit = 9;
+    const limit = 3;
     const skip = page === 1 ? 0 : page * limit;
     const response = await axios.get<ProductsResponse>(
         `https://dummyjson.com/products${searchQuery}limit=${limit}&skip=${skip}`
@@ -30,7 +30,7 @@ export const getProducts = async (page = 1, search?: string): Promise<ProductsRe
 };
 
 function IndexPage() {
-    return <PaginatedGrid />
+    return <PaginatedGrid />;
 }
 
 export const getStaticProps: GetStaticProps = async () => {

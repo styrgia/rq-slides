@@ -1,7 +1,7 @@
-import React, {useEffect, useState} from "react";
-import useDebounce from "@/hooks/useDebounce";
-import ProductsGrid from "@/components/ProductsGrid";
-import {Input, Pagination, Space} from "@mantine/core";
+import React, { useEffect, useState } from 'react';
+import useDebounce from '@/hooks/useDebounce';
+import ProductsGrid from '@/components/ProductsGrid';
+import { Input, Pagination, Space } from '@mantine/core';
 import { useProducts } from '@/components/NewPaginatedGrid/queries';
 
 function PaginatedGrid() {
@@ -10,10 +10,6 @@ function PaginatedGrid() {
     const debouncedSearchValue = useDebounce(searchValue, 1000);
 
     const { data, isSuccess, isLoading, isError } = useProducts(page, debouncedSearchValue);
-
-    useEffect(() => {
-        setPage(1);
-    }, [searchValue]);
 
     const renderResult = () => {
         if (isLoading) {
@@ -40,11 +36,18 @@ function PaginatedGrid() {
 
         return <></>;
     };
+
+    useEffect(() => {
+        setPage(1);
+    }, [searchValue]);
+
     return (
         <>
             <h2>Products</h2>
             <Input
-                onChange={(event: React.ChangeEvent<HTMLInputElement>) => setSearchValue(event.target.value)}
+                onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                    setSearchValue(event.target.value)
+                }
                 value={searchValue}
             />
             <Space h="xl" />
