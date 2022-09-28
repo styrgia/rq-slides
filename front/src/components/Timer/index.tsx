@@ -12,7 +12,7 @@ function Timer() {
         refetchInterval: 100,
     });
 
-    return <div>Time {data}</div>;
+    return <div>Seconds: {data} </div>;
 }
 
 export default Timer;

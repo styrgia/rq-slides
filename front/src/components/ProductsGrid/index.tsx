@@ -1,7 +1,6 @@
 import React from 'react';
 import { Image, SimpleGrid } from '@mantine/core';
-import { getProducts, Product } from '@/pages';
-import { useQuery } from '@tanstack/react-query';
+import { Product } from '@/pages';
 
 type ProductsGridProps = {
     data: Product[];
