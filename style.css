@@ -1,0 +1,40 @@
+.shower {
+    --slide-ratio: calc(16 / 9);
+}
+.fz12 {
+    font-size: 12px;
+}
+.fz14 {
+    font-size: 14px;
+}
+.fz16 {
+    font-size: 16px;
+}
+.fz18 {
+    font-size: 18px;
+}
+.fz24 {
+    font-size: 24px;
+}
+.fz32 {
+    font-size: 32px;
+}
+code {
+    font-size: 10px;
+}
+.block-center {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 80px;
+    text-align: center;
+}
+.slide::after {
+    bottom: 18px;
+    right: 32px;
+    left: initial;
+}
+.title-logo {
+    display: flex;
+    align-items: center;
+}
