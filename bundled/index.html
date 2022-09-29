@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Shower Presentation Engine</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="shower/themes/material/styles/styles.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="node_modules/highlight.js/styles/atom-one-light.css">
+</head>
+
+<body class="shower list">
+
+    <header class="caption">
+        <h1>Построение эффективной коммуникации с бэкендом </h1>
+        <p>с помощью React Query</p>
+    </header>
+
+    <section class="slide">
+        <img src="images/intro.jpg" class="cover w h">
+    </section>
+
+    <section class="slide ">
+        <h2>О себе</h2>
+        <ul>
+            <li class="next">Занимаюсь фронтом с 2017</li>
+            <li class="next">Иногда беру проекты в качестве бэкендера</li>
+            <li class="next">React, TS, MobX, NestJS, NextJS</li>
+            <li class="next">Руковожу фронтенд отделом в Вебпрактик</li>
+        </ul>
+    </section>
+
+    <section class="slide" style="padding: 0px var(--slide-right-side) 0 var(--slide-left-side)">
+        <pre style="margin-top: -20px;"><code class="hljsme language-ts" style="line-height: 1.5; font-size: 14px;">
+                            function Todos() {
+                              <mark>const [data, setData] = useState();</mark>
+                              const [status, setStatus] = useState();
+                              const [errorMsg, setErrorMsg] = useState();
+
+                              useEffect(() => {
+                                 async function manageRequest() {
+                                    setStatus("loading");
+                                    try {
+                                       const todosData = await requestTodos();
+                                       setData(todosData);
+                                       setStatus("success");
+                                    } catch (e) {
+                                       setStatus("failed");
+                                       setErrorMsg(e.msg);
+                                    }
+                                 }
+                                 manageRequest();
+                              }, []);
+
+                              if (status === "loading") { return &lt;span>Loading...&lt;/span>  }
+
+                              if (status === "error") { return &lt;span>Error: {errorMsg}&lt;/span> }
+
+                              return (...);
+                            }
+        </code></pre>
+    </section>
+
+    <section class="slide ">
+        <h2>С чем имеем сейчас дело</h2>
+        <ul>
+            <li class="next">Лишние запросы и нагрузка на сервер</li>
+            <li class="next">Сами отслеживаем и контролируем состояние запроса</li>
+            <li class="next">Клиентские сторы не предусматривают работу с асинхронным серверным состоянием из коробки</li>
+        </ul>
+        <p class="next">Пишем<span style="font-size: 62px"> 🚲</span></p>
+    </section>
+
+<!--    Существует определенный класс библиотек которые решают эти проблемы - react-query, swr, rtk-query-->
+<!--    React query на данный момент является фаворитом, и немного ушел вперед по сравнению с остальными конкурентами
+        В конце рассмотрим сравнение c swr-->
+    <section class="slide block-center">
+        <h2>Библиотеки</h2>
+        <div class="columns three" style="justify-items: center; align-items: center;">
+            <img src="images/swr-logo.png" class="next" />
+            <img src="images/rq-logo.svg" class="next" />
+            <img src="images/rtk-logo.png" class="next" width="250" height="80" />
+        </div>
+    </section>
+
+    <section class="slide ">
+        <h2>Какие проблемы решает</h2>
+        <ul>
+            <li class="next one-line">Кеширование результатов из коробки</li>
+            <li class="next">Убирает дубли нескольких одинаковых запросов (дедупликация)</li>
+            <li class="next">Автоматическое обновление данных в фоновом режиме и префетчинг</li>
+<!--            Подход React-Query к оптимистичным обновлениям заключается в обновлении кеша запросов в соответствии с тем, -->
+<!--            как должны выглядеть данные в случае успешного выполнения запроса-->
+            <li class="next">Убирает лишний код</li>
+            <li class="next">С ним легко делать пагинацию и бесконечный скролл</li>
+            <li class="next">Гибкое API для управления - пауза, отмена, повторы запросов</li>
+            <li class="next">SSR friendly</li>
+        </ul>
+    </section>
+
+    <section class="slide">
+        <h2 class="">Базовое использование</h2>
+        <p>(пример)</p>
+    </section>
+
+    <section class="slide ">
+        <h2>Состояния запроса</h2>
+        <div class="columns two">
+            <div class="next">
+                <h3>status: </h3>
+                <ul>
+                    <li class="next"><code class="fz24">isLoading</code> - данные еще не появились</li>
+                    <li class="next"><code class="fz24">isError</code> - запрос упал с ошибкой</li>
+                    <li class="next"><code class="fz24">isSuccess</code> - успешное получение</li>
+                </ul>
+            </div>
+
+            <div class="next">
+                <h3>fetchStatus: </h3>
+                <ul>
+                    <li class="next"><code class="fz24" style="background-color: rgb(0, 107, 255); color: white;">fetching</code> - запрос выполняется</li>
+                    <li class="next"><code class="fz24" style="background-color: rgb(140, 73, 235); color: white;">paused</code> - запрос висит на паузе (в случаях когда потеряно соединение с сервером)</li>
+                    <li class="next"><code class="fz24" style="background-color: rgb(0, 171, 82); color: white;">idle</code> - ничего не происходит (данные берутся из кеша)</li>
+                </ul>
+            </div>
+<!--            возможны все комбинации этих двух состояний-->
+        </div>
+    </section>
+
+    <section class="slide  block-center">
+        <h2>API useQuery</h2>
+    </section>
+
+    <section class="slide " style="padding: 0 var(--slide-right-side) 0 var(--slide-left-side);">
+        <pre><code style="font-size: 13px">
+                            <span style="color: darkblue">const</span> {
+                              data, dataUpdatedAt, error,
+                              errorUpdatedAt, failureCount, isError,
+                              isFetched, isFetchedAfterMount, isFetching,
+                              isPaused, isLoading, isLoadingError,
+                              isPlaceholderData, isPreviousData, isRefetchError,
+                              isRefetching, isStale, isSuccess, refetch,
+                              remove, status, fetchStatus,
+                            } = <span style="color: darkorange">useQuery</span>(<span style="color: darkblue">queryKey</span>, <span style="color: darkblue">queryFn?</span>, {
+                              <mark>cacheTime</mark>, <mark>enabled</mark>, networkMode,
+                              <mark>initialData</mark>, initialDataUpdatedAt,
+                              isDataEqual, <mark>keepPreviousData</mark>, meta,
+                              notifyOnChangeProps, onError, onSettled, onSuccess,
+                              <mark>placeholderData</mark>, queryKeyHashFn, <mark>refetchInterval</mark>,
+                              refetchIntervalInBackground, <mark>refetchOnMount</mark>,
+                              refetchOnReconnect, refetchOnWindowFocus,
+                              <mark>retry</mark>, retryOnMount, retryDelay,
+                              <mark>select</mark>, <mark>staleTime</mark>, <mark>structuralSharing</mark>,
+                              suspense, useErrorBoundary,
+                            })
+        </code></pre>
+    </section>
+
+    <section class="slide">
+        <img class="cover" src="images/cmbain.jpg" >
+    </section>
+
+    <section class="slide ">
+        <div class="columns">
+            <ul>
+                <li class="fz16"><mark class="fz24">enabled</mark> - включение/выключение запроса (boolean)</li>
+                <li class="fz16 next"><mark class="fz24">select</mark> - функция для преобразования или частичной выборки данных</li>
+                <li class="fz16 next"><mark class="fz24">refetchInterval</mark> - кол-во <b>милисекунд</b> или функция для вычисления ms</li>
+                <li class="fz16 next"><mark class="fz24">refetchOnMount</mark> - делать ли запрос при монтировании, по умолчанию <b>true</b> (boolean | "always")</li>
+                <li class="fz16 next"><mark class="fz24">retry</mark> - вкл/выкл повтор неудачных запросов, либо указываем лимиты (boolean | number)</li>
+                <li class="fz16 next"><mark class="fz24">initialData</mark> - начальные данные, <b>хранятся в кеше</b></li>
+                <li class="fz16 next"><mark class="fz24">placeholderData</mark> - подставляются при загрузке, когда данные еще не получены, <b>не хранится в кеше</b></li>
+                <li class="fz16 next"><mark class="fz24">keepPreviousData</mark> - предыдущие данные сохраняются при смене ключей, часто используется для пагинации</li>
+            </ul>
+        </div>
+    </section>
+
+    <section class="slide ">
+        <h2>Ключи - основа всего</h2>
+        <div class="columns fz14">
+            <p class="note">Простые ключи с примитивами</p>
+            <ul>
+                <li><pre><span style="color: darkorange">useQuery</span>(['todos'], ...)</pre></li>
+                <li><pre><span style="color: darkorange">useQuery</span>(['todos', 'something'], ...)</pre></li>
+            </ul>
+            <p class="note">Ключи с объектами - </p>
+            <ul>
+                <li><pre><span style="color: darkorange">useQuery</span>(['todos', todoId, { status, page }], ...)</pre></li>
+                <li><pre><span style="color: darkorange">useQuery</span>(['todos', { page, status }], ...)</pre></li>
+                <li><pre><span style="color: darkorange">useQuery</span>(['todos', { page, status, other: undefined }], ...)</pre></li>
+            </ul>
+
+            <p>Порядок ключей в массиве <b>важен</b></p>
+        </div>
+    </section>
+
+    <section class="slide">
+        <h2>Фабрика ключей</h2>
+        <img src="images/factory.jpg" class="cover w" style="margin-top: 75px" alt="">
+    </section>
+    <section class="slide">
+        <h2>Фабрика ключей</h2>
+        <img src="images/factory-2.jpg" class="cover w" style="margin-top: 45px" alt="">
+    </section>
+
+
+    <section class="slide block-center">
+        <h2>Пример с пагинацией и SSR</h2>
+    </section>
+
+<!--    Пример с пагинацией и списком
+        - Рассмотреть app, объяснить про queryClient
+        - Рассмотреть rehydrate -
+        мы можем сделать предварительные запросы на сервере, а затем гидрировать эти запросы на клиенте.
+        Это позволяет отрендерить данные в SSR, и автоматически пробрасывать их на клиент
+        При загрузке страницы, как только JS станет доступен, react-query сможет обновить и сохранить подготовленные данные у себя.
+        Данные будут доступны также и у всех дочерних элементов, использующих одинаковый ключ автоматически, без проброса
+        - Показать подключение девтулзов
+-->
+
+    <section class="slide ">
+        <h2>staleTime vs cacheTime</h2>
+        <p class="fz18 next"><b>staleTime:</b> время в милисекундах до устаревания запроса. Пока запрос свежий <mark style="background: rgb(0, 171, 82)">(fresh)</mark>, данные всегда будут считываться только из кеша, без сетевого запроса.
+            Если запрос устарел, вы все равно получите данные из кеша, но при определенных условиях может произойти повторная загрузка.</p>
+        <br />
+        <p class="fz18 next"><b>cacheTime:</b> время в милисекундах, по истечении которого неактивные запросы будут удалены из кэша. По умолчанию - 5 минут.
+            Запросы переходят в неактивное состояние, как только теряются все наблюдатели, т.е когда компоненты, использующие этот запрос, размонтированы. <b>Значение garbage коллектора, которое обычно не стоит менять</b></p>
+    </section>
+
+    <section class="slide " style="padding: 10px var(--slide-right-side) 0 var(--slide-left-side)">
+        <h2>ЖЦ при дефолтных значениях</h2>
+        <p class="note">staleTime: 0, cacheTime: 5 минут</p>
+        <div class="fz16" >
+            <img class="place right" style="z-index: -1;" width="800" height="500"  src="images/react-query-states-diagram.png">
+        </div>
+    </section>
+    <section class="slide ">
+        <div >
+            <ul>
+                <li>
+                    Монтируется первый компонент, использующий <span><pre><mark>useQuery(`todos`], fetchTodos)</mark></pre></span>
+                    <ul>
+                        <li class="next">т.к он первый замонтировался - инициирует запрос на сервер за данными =></li>
+                        <li class="next">запрос прошел успешно - данные сохраняются в кеш с ключом <mark>[`todos`]</mark> =></li>
+                        <li class="next">помечаем данные как "устаревшие", тк по умолчанию staleTime: 0 </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </section>
+    <section class="slide ">
+        <div class="fz16" >
+            <ul>
+                <li>
+                    Где-то в дереве монтируется второй компонент, использующий <pre style="display: inline;"><mark>useQuery(['todos'], fetchTodos)</mark></pre>
+                    <ul>
+                        <li class="next">видит данные в кеше, с ключем <mark>[`todos`]</mark> - забирает их из кеша =></li>
+                        <li class="next">инициирует <b>новый</b> запрос на сервер =></li>
+                        <li class="next">при успешном запросе также обновляет кеш по ключу <mark>[`todos`]</mark> и оба инстанса обновляются, получая новые данные</li>
+                    </ul>
+                </li>
+                <br />
+                <li class="next">
+                    Размонтируем оба компонента. Так как слушаетелей больше нет - запускается таймер кеша (cacheTime), который по истечении времени удалит данные этого запроса (через 5 мин)
+                </li>
+                <li class="next">Перед тем как завершится таймер - монтируем еще один компонент с useQuery.
+                    Новый инстанс сразу возьмет данные из кеша, также делая новый запрос в фоне. После успешного запроса снова обновит кеш.
+                </li>
+                <li class="next">
+                    Размонтируем последний слушатель <pre style="display: inline;"><mark>useQuery(['todos'], fetchTodos)</mark></pre>
+                </li>
+                <li class="next">
+                    По истечении 5 минут, данные из <mark>[`todos`]</mark> снесет из памяти сборщик мусора.
+                </li>
+            </ul>
+        </div>
+    </section>
+
+    <section class="slide ">
+        <h2>Значения по умолчанию</h2>
+        <ul>
+            <li>refetchOnWindowFocus: true</li>
+            <li>refetchOnMount: true </li>
+            <li>refetchOnReconnect: true </li>
+            <li>cacheTime: 1000 * 60 * 5</li>
+            <li>retry: 3 </li>
+            <li>structuralSharing: true </li>
+        </ul>
+        <p class="note next">
+            В dev-режиме имеет смысл отключить <b>retry</b> и <b>refetchOnWindowFocus</b> на глобальном уровне
+        </p>
+    </section>
+
+    <section class="slide">
+        <h2>structuralSharing</h2>
+        <img class="cover w" style="margin-top: -25px" src="images/struct-sharing.jpg" alt="">
+        <img class="cover w next" style="margin-top: 170px" src="images/struct-sharing-2.jpg" alt="">
+    </section>
+
+    <section class="slide ">
+        <h2>Параллельные и последовательные запросы</h2>
+        Параллельный запуск:
+        <pre><code class="fz18">
+<span style="color: darkblue">const</span> usersQuery = <span style="color: darkorange">useQuery</span>(['users'], fetchUsers)
+<span style="color: darkblue">const</span> teamsQuery = <span style="color: darkorange">useQuery</span>(['teams'], fetchTeams)
+<span style="color: darkblue">const</span> projectsQuery = <span style="color: darkorange">useQuery</span>(['projects'], fetchProjects)
+<span class="next">......</span>
+        </code></pre>
+    </section>
+
+    <section class="slide ">
+        Последовательные запросы:
+        <pre><code class="fz18">
+<span style="color: darkblue">const</span> { data: login } = <span style="color: darkorange">useQuery</span>([<span style="color: green">'login'</span>], fetchLogin);
+
+<span class="next"><span style="color: darkblue">const</span> { data: user } = <span style="color: darkorange">useQuery</span>([<span style="color: green">'user'</span>], () => fetchUser(login?.id), {
+    <mark class="next">enabled: login?.id !== undefined,</mark>
+})
+</span>
+<span class="next">......</span>
+<span class="next">......</span>
+<span class="next">......</span>
+        </code></pre>
+    </section>
+
+    <section class="slide ">
+        Последовательные запросы:
+        <pre><code class="fz18">
+// ✅ Иногда лучше вынести последовательные запросы в один фетчер
+
+<span style="color: darkblue">const</span> login = <span style="color: darkblue">async</span> () => {
+    <span style="color: darkblue">const</span> response = <span style="color: darkblue">await</span> fetchLogin();
+    return <span style="color: darkblue">await</span> fetchUser(response.id);
+}
+...
+
+<span style="color: darkblue">const</span> { data: login } = <span style="color: darkorange">useQuery</span>([<span style="color: green">'login'</span>], fetchLogin);
+        </code></pre>
+    </section>
+
+    <section class="slide ">
+        <h2>Вынесение в отдельные хуки</h2>
+        <pre><code class="fz18">
+- src /
+  - features /
+    - Profile /
+      - index.tsx
+      - queries.ts
+    - Todos /
+      - index.tsx
+      - queries.ts
+        </code></pre>
+
+    </section>
+
+    <section class="slide">
+        <h2>Вынесение в отдельные хуки</h2>
+<pre><code class="fz18 hljsme">
+        export const useTodosQuery = () => {
+            const query = useQuery(['todos'], fetchTodos)
+            return {
+                ...query,
+                data: React.useMemo(
+                    () => queryInfo.data?.map((todo) => todo.name.toUpperCase()),
+                    [queryInfo.data]
+                ),
+            }
+        }
+</code></pre>
+    </section>
+
+    <section class="slide">
+        <h2>Вынесение в отдельные хуки</h2>
+        <pre><code class="fz18 hljsme">
+        // ✅ Используем готовый хук
+        export const Todos = () => {
+            const { data } = useTodosQuery();
+            ....
+        }
+</code></pre>
+    </section>
+
+    <section class="slide block-center">
+        <h2 style="font-weight: bold; color: white; margin-top: 50px">Мутации</h2>
+        <img src="images/mutation.jpeg" class="cover w h" alt="">
+    </section>
+
+    <section class="slide">
+        <h2>Мутации</h2>
+        <p>Мутации обычно используются для создания/обновления/удаления данных или выполнения побочных эффектов сервера. Для этого есть хук useMutation.       </p>
+    </section>
+
+    <section class="slide" style="padding: 15px var(--slide-right-side) 0 var(--slide-left-side)">
+        <h3 style="padding: 0; margin: 0;">useQuery - декларативный, useMutation - императивный</h3>
+        <pre><code class="hljsme language-ts fz16" style="line-height: 1.5;">
+        function AddComment({ id }) {
+            // создание мутации ничего не выполняет
+            const addComment = useMutation((newComment) =>
+                axios.post(`/posts/${id}/comments`, newComment)
+            )
+
+            return (
+                &lt;form
+                    onSubmit={(event) => {
+                        event.preventDefault()
+                        // ✅ вызов мутации происходит при отправке формы
+                        addComment.mutate(new FormData(event.currentTarget).get('comment'))
+                    }}
+                >
+                    &lt;textarea name="comment" />
+                    &lt;button type="submit">Comment&lt;/button>
+                &lt;/form>
+            )
+        }
+        </code></pre>
+    </section>
+
+    <section class="slide" style="padding: 15px var(--slide-right-side) 0 var(--slide-left-side)">
+        <h3 style="padding: 0; margin: 0;">useQuery - декларативный, useMutation - императивный</h3>
+        <pre><code class="hljsme language-ts fz18" style="line-height: 1.5;">
+        const useAddComment = (id) => {
+              const queryClient = useQueryClient()
+
+              return useMutation(
+                (newComment) => axios.post(`/posts/${id}/comments`, newComment),
+                {
+                  onSuccess: () => {
+                    // ✅ перезапросит обновленные данные с бека
+                    queryClient.invalidateQueries(['posts', id, 'comments'])
+                  },
+                }
+              )
+        }
+        </code></pre>
+    </section>
+
+    <section class="slide ">
+        <h2>Отлов ошибок в error boundaries</h2>
+
+        <pre><code class="fz16">
+    // 🔝 прокинет все ошибки данного запроса в ближайший Error Boundary
+    const todos = useQuery(['todos'], fetchTodos, <mark>{ useErrorBoundary: true }</mark>)
+        </code></pre>
+
+        <pre class="next"><code class="fz16">
+    useQuery(['todos'], fetchTodos, {
+      // 🚀 фильтруем только серверные ошибки
+      useErrorBoundary: <mark>(error) => error.response?.status >= 500</mark>,
+    })
+        </code></pre>
+    </section>
+
+    <section class="slide ">
+        <h2>Когда нужны клиентские сторы</h2>
+        <p class="note">и нужны ли вообще</p>
+    </section>
+
+    <section class="slide">
+        <h2>А что нужно хранить в клиентском состоянии?</h2>
+        <ul>
+            <li class="next">Глобальные состояния UI, которые не хранятся на сервере</li>
+            <li class="next">Browser API</li>
+            <li class="next">DOM</li>
+            <li class="next">Сбор и обработка юзерского ввода для дальнейшей отправки на бек</li>
+        </ul>
+    </section>
+    
+    <section class="slide">
+        <img src="images/client-state.jpg" class="cover" alt="">
+    </section>
+
+    <section class="slide">
+        <img src="images/server-state.jpg" class="cover">
+    </section>
+
+    <section class="slide ">
+        <img class="cover" src="images/with-stores-1.png" />
+    </section>
+
+    <section class="slide ">
+        <img class="cover" src="images/with-stores-2.png" />
+    </section>
+
+    <section class="slide" style="padding: 15px var(--slide-right-side) 0 var(--slide-left-side)">
+        <h2 style="margin: 0;">Связка со стором</h2>
+        <pre><code class="hljsme fz16" style="line-height: 1.5;">
+                class MyStore {
+                    @observable
+                    public data = [];
+
+                    ...
+
+                    @action
+                    fetchData = async () => {
+                        try {
+                            const response = await ApiService.getData();
+                            runInAction(() => {
+                                this.data = response.data;
+                            })
+                            return response.data;
+                        } catch (e) {
+                            console.error(e.message);
+                        }
+                    }
+                    ...
+        </code></pre>
+    </section>
+
+    <section class="slide" style="padding: 15px var(--slide-right-side) 0 var(--slide-left-side)">
+        <h2 style="margin: 0;">Связка со стором</h2>
+        <pre><code class="hljsme fz24" style="line-height: 1.5;">
+
+
+    // 🔝 указываем фетчер из стора
+    const { data } = useQuery('storedData', MyStore.fetchData);
+        </code></pre>
+    </section>
+
+    <section class="slide">
+        <h2>React-admin</h2>
+        <img src="images/react-admin.jpg" class="cover" width=900" height="400" style="margin-top: 50px;">
+    </section>
+
+    <section class="slide">
+        <h2>Можно ли считать React-Query фреймворком только для запросов?</h2>
+        <p class="fz18">В react-query есть возможность императивно менять кеш, что дает массу возможностей использовать его вместо сторов</p>
+        <span class="next">также можно:</span>
+        <ul class="fz18">
+            <li class="next">использовать в качестве глобального стейт менеджера</li>
+            <li class="next">писать всевозможные таймеры</li>
+            <li class="next">подключаться по ws</li>
+            <li class="next">отправлять задачи на вебворкеры</li>
+        </ul>
+        <p class="next note fz18">и многое другое, но это концептуально неверно и сложнее обычной реализации</p>
+    </section>
+
+    <section class="slide">
+        <h2>react-query vs swr</h2>
+        <table style="font-size: 20px;">
+            <tr>
+                <th scope="col"></th>
+                <th>RQ</th>
+                <th>SWR</th>
+            </tr>
+            <tr>
+                <th>Размер бандла</th>
+                <td>~12 kb ⚖️</td>
+                <td>4 kb</td>
+            </tr>
+            <tr>
+                <th>Стратегия сравнения кеша</th>
+                <td>deep compare️</td>
+                <td>shallow</td>
+            </tr>
+            <tr>
+                <th>Селекторы</th>
+                <td>️✅</td>
+                <td>🛑</td>
+            </tr>
+            <tr>
+                <th>Оптимизированный рендеринг</th>
+                <td>️✅</td>
+                <td>🛑</td>
+            </tr>
+            <tr>
+                <th>Гибкая конфигурация StaleTime</th>
+                <td>️✅</td>
+                <td>🛑</td>
+            </tr>
+            <tr>
+                <th>CacheTime и автом. garbage collection</th>
+                <td>️✅</td>
+                <td>🛑</td>
+            </tr>
+            <tr>
+                <th>Более гибкие глобальные настройки</th>
+                <td>️✅</td>
+                <td>🛑</td>
+            </tr>
+            <tr>
+                <th>Работа с мутациями в оффлайне</th>
+                <td>️✅</td>
+                <td>🛑</td>
+            </tr>
+        </table>
+    </section>
+
+
+    <section class="slide">
+        <h2>Итоги</h2>
+
+        <p class="next fz18">Очередная революция во фронте. Привыкаем к понятию <br/>“Глобальное состояние не подходит для серверных данных”</p>
+        <p class="next fz18">Планируем использовать как стандарт, внедрять повсеместно на проектах. С октября полностью внедряем react-query на все запросы.
+            <ol class="fz18">
+                <li class="next">попросите 1 час у ПМ для генерации типов</li>
+                <li class="next">если нужно сделать запрос - делайте сразу на react-query</li>
+            </ol>
+        </p>
+        <p class="next fz18">Внедрим в общую next.js сборку</p>
+    </section>
+
+    <section class="slide  block-center">
+        <h2>Какие сложности создает</h2>
+    </section>
+
+    <section class="slide center">
+        <img class="cover" src="images/server-vs-client.jpg" >
+    </section>
+
+    <section class="slide ">
+        <ul>
+            <li>Разграничивает серверное и клиентское состояние</li>
+<!--                        Есть концептуальная проблема. Вся идея отделения состояния клиента от состояния сервера заключается в том, -->
+<!--                        что у нас раньше был четкий единый источник правды, которому мы можем доверять. -->
+<!--                        Но теперь кэш, предназначенный для состояния сервера может оказаться не всегда ненадежным -->
+            <li class="next">Есть небольшой порог входа для команды</li>
+            <!--            Хоть в целом api библиотеки кажется простым, однако надо понимать как с этим работать, -->
+            <!--            знать некоторые нюансы и применять это в нужном месте тк приходится работать с кешем. Еще одна библиотека в инвентаре -->
+            <li class="next">Дополнительная зависимость в проекте</li>
+            <!--            иконка весов-->
+        </ul>
+    </section>
+
+    <section class="slide ">
+        <h2>Ограничения</h2>
+
+        <div class="columns two">
+            <ul class="next">
+                <li>Typescript > 4.1</li>
+                <li>Lock версии react-query на проекте из-за типов</li>
+            </ul>
+            <div class="next">
+                <pre>
+                    Chrome >= 73
+                    Firefox >= 78
+                    Edge >= 79
+                    Safari >= 12.0
+                    iOS >= 12.0
+                    opera >= 53
+                </pre>
+            </div>
+        </div>
+    </section>
+
+    <section class="slide  block-center">
+        Спасибо за внимание 👏
+    </section>
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/highlight.min.js"></script>
+    <script src="shower/shower.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            document.querySelectorAll('.hljsme').forEach((el) => {
+                hljs.highlightElement(el);
+            });
+        });
+    </script>
+
+</body>
+</html>
